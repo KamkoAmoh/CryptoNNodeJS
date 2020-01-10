@@ -1,0 +1,42 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const crypto = require("crypto");
+class AESCipher {
+    constructor() {
+        this.algorithm = "aes-192-cbc";
+        this.password = "Lab42";
+        this.key = crypto.scryptSync(this.password, 'salt', 24);
+        this.iv = Buffer.alloc(16, 0);
+        this.cipher = crypto.createCipheriv(this.algorithm, this.key, this.iv);
+        this.decipher = crypto.createDecipheriv(this.algorithm, this.key, this.iv);
+        this.data = "";
+    }
+    encrypt(data) {
+        this.cipher.on('readable', () => {
+            let chunk;
+            while (null !== (chunk = this.cipher.read())) {
+                this.data += chunk.toString('hex');
+            }
+        });
+        this.cipher.on("end", () => {
+            console.log(this.data);
+        });
+        this.cipher.write(data);
+        return this.cipher.end();
+    }
+    decrypt(data) {
+        this.decipher.on('readable', () => {
+            let chunk;
+            while (null !== (chunk = this.decipher.read())) {
+                this.data += chunk.toString('utf8');
+            }
+        });
+        this.decipher.on('end', () => {
+            console.log(this.data);
+        });
+        this.decipher.write(data, 'hex');
+        return this.decipher.end();
+    }
+}
+exports.AESCipher = AESCipher;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiQUVTQ2lwaGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vQ3J5cHRvZ3JhcGh5L0FFU0NpcGhlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLGlDQUFpQztBQUdqQyxNQUFhLFNBQVM7SUFBdEI7UUFDWSxjQUFTLEdBQVcsYUFBYSxDQUFDO1FBQ2xDLGFBQVEsR0FBVyxPQUFPLENBQUM7UUFDM0IsUUFBRyxHQUFXLE1BQU0sQ0FBQyxVQUFVLENBQUMsSUFBSSxDQUFDLFFBQVEsRUFBRSxNQUFNLEVBQUUsRUFBRSxDQUFDLENBQUM7UUFDM0QsT0FBRSxHQUFXLE1BQU0sQ0FBQyxLQUFLLENBQUMsRUFBRSxFQUFFLENBQUMsQ0FBQyxDQUFDO1FBQ2pDLFdBQU0sR0FBa0IsTUFBTSxDQUFDLGNBQWMsQ0FBQyxJQUFJLENBQUMsU0FBUyxFQUFFLElBQUksQ0FBQyxHQUFHLEVBQUUsSUFBSSxDQUFDLEVBQUUsQ0FBQyxDQUFDO1FBQ2pGLGFBQVEsR0FBb0IsTUFBTSxDQUFDLGdCQUFnQixDQUFDLElBQUksQ0FBQyxTQUFTLEVBQUUsSUFBSSxDQUFDLEdBQUcsRUFBRSxJQUFJLENBQUMsRUFBRSxDQUFDLENBQUM7UUFDdkYsU0FBSSxHQUFXLEVBQUUsQ0FBQztJQWlDOUIsQ0FBQztJQS9CVSxPQUFPLENBQUMsSUFBWTtRQUN2QixJQUFJLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxVQUFVLEVBQUUsR0FBRyxFQUFFO1lBQzVCLElBQUksS0FBSyxDQUFDO1lBQ1YsT0FBTyxJQUFJLEtBQUssQ0FBQyxLQUFLLEdBQUcsSUFBSSxDQUFDLE1BQU0sQ0FBQyxJQUFJLEVBQUUsQ0FBQyxFQUFFO2dCQUMxQyxJQUFJLENBQUMsSUFBSSxJQUFJLEtBQUssQ0FBQyxRQUFRLENBQUMsS0FBSyxDQUFDLENBQUM7YUFDdEM7UUFDTCxDQUFDLENBQUMsQ0FBQztRQUVILElBQUksQ0FBQyxNQUFNLENBQUMsRUFBRSxDQUFDLEtBQUssRUFBRSxHQUFHLEVBQUU7WUFDdkIsT0FBTyxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsSUFBSSxDQUFDLENBQUM7UUFDM0IsQ0FBQyxDQUFDLENBQUM7UUFFSCxJQUFJLENBQUMsTUFBTSxDQUFDLEtBQUssQ0FBQyxJQUFJLENBQUMsQ0FBQztRQUN4QixPQUFPLElBQUksQ0FBQyxNQUFNLENBQUMsR0FBRyxFQUFFLENBQUM7SUFDN0IsQ0FBQztJQUVNLE9BQU8sQ0FBQyxJQUFZO1FBQ3ZCLElBQUksQ0FBQyxRQUFRLENBQUMsRUFBRSxDQUFDLFVBQVUsRUFBRSxHQUFHLEVBQUU7WUFDOUIsSUFBSSxLQUFLLENBQUM7WUFDVixPQUFPLElBQUksS0FBSyxDQUFDLEtBQUssR0FBRyxJQUFJLENBQUMsUUFBUSxDQUFDLElBQUksRUFBRSxDQUFDLEVBQUU7Z0JBQzVDLElBQUksQ0FBQyxJQUFJLElBQUksS0FBSyxDQUFDLFFBQVEsQ0FBQyxNQUFNLENBQUMsQ0FBQzthQUN2QztRQUNMLENBQUMsQ0FBQyxDQUFDO1FBRUgsSUFBSSxDQUFDLFFBQVEsQ0FBQyxFQUFFLENBQUMsS0FBSyxFQUFFLEdBQUcsRUFBRTtZQUN6QixPQUFPLENBQUMsR0FBRyxDQUFDLElBQUksQ0FBQyxJQUFJLENBQUMsQ0FBQztRQUMzQixDQUFDLENBQUMsQ0FBQztRQUVILElBQUksQ0FBQyxRQUFRLENBQUMsS0FBSyxDQUFDLElBQUksRUFBRSxLQUFLLENBQUMsQ0FBQztRQUNqQyxPQUFPLElBQUksQ0FBQyxRQUFRLENBQUMsR0FBRyxFQUFFLENBQUM7SUFDL0IsQ0FBQztDQUNKO0FBeENELDhCQXdDQyJ9
