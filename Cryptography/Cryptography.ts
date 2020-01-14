@@ -1,5 +1,5 @@
 
 export interface Cryptography {
-    encrypt(data: string);
-    decrypt(data: string);
+    encrypt(data: string): Promise<string>;
+    decrypt(data: string): Promise<string>;
 }

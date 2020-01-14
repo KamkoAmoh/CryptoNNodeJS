@@ -1,42 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const crypto = require("crypto");
-class DESCipher {
+const CipherClass_1 = require("./CipherClass");
+class DESCipher extends CipherClass_1.CipherClass {
     constructor() {
-        this.algorithm = "des-ede-cbc";
-        this.password = "Lab42";
-        this.key = crypto.scryptSync(this.password, 'salt', 16);
-        this.iv = Buffer.alloc(8, 0);
-        this.cipher = crypto.createCipheriv(this.algorithm, this.key, this.iv);
-        this.decipher = crypto.createDecipheriv(this.algorithm, this.key, this.iv);
-        this.data = "";
-    }
-    encrypt(data) {
-        this.cipher.on('readable', () => {
-            let chunk;
-            while (null !== (chunk = this.cipher.read())) {
-                this.data += chunk.toString('hex');
-            }
-        });
-        this.cipher.on('end', () => {
-            console.log(this.data);
-        });
-        this.cipher.write(data);
-        return this.cipher.end();
-    }
-    decrypt(data) {
-        this.decipher.on('readable', () => {
-            let chunk;
-            while (null !== (chunk = this.decipher.read())) {
-                this.data += chunk.toString('utf8');
-            }
-        });
-        this.decipher.on('end', () => {
-            console.log(this.data);
-        });
-        this.decipher.write(data, 'hex');
-        return this.decipher.end();
+        super("des-ede-cbc", "Lab42", 16, 8);
     }
 }
 exports.DESCipher = DESCipher;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiREVTQ2lwaGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vQ3J5cHRvZ3JhcGh5L0RFU0NpcGhlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLGlDQUFpQztBQUdqQyxNQUFhLFNBQVM7SUFBdEI7UUFDWSxjQUFTLEdBQVcsYUFBYSxDQUFDO1FBQ2xDLGFBQVEsR0FBVyxPQUFPLENBQUM7UUFDM0IsUUFBRyxHQUFXLE1BQU0sQ0FBQyxVQUFVLENBQUMsSUFBSSxDQUFDLFFBQVEsRUFBRSxNQUFNLEVBQUUsRUFBRSxDQUFDLENBQUM7UUFDM0QsT0FBRSxHQUFXLE1BQU0sQ0FBQyxLQUFLLENBQUMsQ0FBQyxFQUFFLENBQUMsQ0FBQyxDQUFDO1FBQ2hDLFdBQU0sR0FBa0IsTUFBTSxDQUFDLGNBQWMsQ0FBQyxJQUFJLENBQUMsU0FBUyxFQUFFLElBQUksQ0FBQyxHQUFHLEVBQUUsSUFBSSxDQUFDLEVBQUUsQ0FBQyxDQUFDO1FBQ2pGLGFBQVEsR0FBb0IsTUFBTSxDQUFDLGdCQUFnQixDQUFDLElBQUksQ0FBQyxTQUFTLEVBQUUsSUFBSSxDQUFDLEdBQUcsRUFBRSxJQUFJLENBQUMsRUFBRSxDQUFDLENBQUM7UUFDdkYsU0FBSSxHQUFXLEVBQUUsQ0FBQztJQWlDOUIsQ0FBQztJQS9CVSxPQUFPLENBQUMsSUFBWTtRQUN2QixJQUFJLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxVQUFVLEVBQUUsR0FBRyxFQUFFO1lBQzVCLElBQUksS0FBSyxDQUFDO1lBQ1YsT0FBTyxJQUFJLEtBQUssQ0FBQyxLQUFLLEdBQUcsSUFBSSxDQUFDLE1BQU0sQ0FBQyxJQUFJLEVBQUUsQ0FBQyxFQUFFO2dCQUMxQyxJQUFJLENBQUMsSUFBSSxJQUFJLEtBQUssQ0FBQyxRQUFRLENBQUMsS0FBSyxDQUFDLENBQUM7YUFDdEM7UUFDTCxDQUFDLENBQUMsQ0FBQztRQUVILElBQUksQ0FBQyxNQUFNLENBQUMsRUFBRSxDQUFDLEtBQUssRUFBRSxHQUFHLEVBQUU7WUFDdkIsT0FBTyxDQUFDLEdBQUcsQ0FBQyxJQUFJLENBQUMsSUFBSSxDQUFDLENBQUM7UUFDM0IsQ0FBQyxDQUFDLENBQUM7UUFFSCxJQUFJLENBQUMsTUFBTSxDQUFDLEtBQUssQ0FBQyxJQUFJLENBQUMsQ0FBQztRQUN4QixPQUFPLElBQUksQ0FBQyxNQUFNLENBQUMsR0FBRyxFQUFFLENBQUM7SUFDN0IsQ0FBQztJQUVNLE9BQU8sQ0FBQyxJQUFZO1FBQ3ZCLElBQUksQ0FBQyxRQUFRLENBQUMsRUFBRSxDQUFDLFVBQVUsRUFBRSxHQUFHLEVBQUU7WUFDOUIsSUFBSSxLQUFLLENBQUM7WUFDVixPQUFPLElBQUksS0FBSyxDQUFDLEtBQUssR0FBRyxJQUFJLENBQUMsUUFBUSxDQUFDLElBQUksRUFBRSxDQUFDLEVBQUU7Z0JBQzVDLElBQUksQ0FBQyxJQUFJLElBQUksS0FBSyxDQUFDLFFBQVEsQ0FBQyxNQUFNLENBQUMsQ0FBQzthQUN2QztRQUNMLENBQUMsQ0FBQyxDQUFDO1FBRUgsSUFBSSxDQUFDLFFBQVEsQ0FBQyxFQUFFLENBQUMsS0FBSyxFQUFFLEdBQUcsRUFBRTtZQUN6QixPQUFPLENBQUMsR0FBRyxDQUFDLElBQUksQ0FBQyxJQUFJLENBQUMsQ0FBQztRQUMzQixDQUFDLENBQUMsQ0FBQztRQUVILElBQUksQ0FBQyxRQUFRLENBQUMsS0FBSyxDQUFDLElBQUksRUFBRSxLQUFLLENBQUMsQ0FBQztRQUNqQyxPQUFPLElBQUksQ0FBQyxRQUFRLENBQUMsR0FBRyxFQUFFLENBQUM7SUFDL0IsQ0FBQztDQUNKO0FBeENELDhCQXdDQyJ9
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiREVTQ2lwaGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vQ3J5cHRvZ3JhcGh5L0RFU0NpcGhlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLCtDQUE0QztBQUU1QyxNQUFhLFNBQVUsU0FBUSx5QkFBVztJQUN0QztRQUNJLEtBQUssQ0FBQyxhQUFhLEVBQUUsT0FBTyxFQUFFLEVBQUUsRUFBRSxDQUFDLENBQUMsQ0FBQztJQUN6QyxDQUFDO0NBQ0o7QUFKRCw4QkFJQyJ9
