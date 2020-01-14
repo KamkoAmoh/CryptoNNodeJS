@@ -28,3 +28,11 @@ async function writeRead() {
 
 memStorage();
 writeRead();
+
+var myArgs = process.argv.slice(2);
+
+switch (myArgs[0]) {
+    case '-e': console.log(myArgs[1], 'smells quite badly.'); break;
+    case '-d': console.log(myArgs[1], 'is really cool.'); break;
+    default: console.log("Something nor ptovided")
+}
