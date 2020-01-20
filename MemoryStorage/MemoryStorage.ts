@@ -1,16 +1,19 @@
-import { DataManager } from './DataManager';
-import { AESCipher } from '../Cryptography/AESCipher';
+import { DataStorage } from './DataStorage';
+import * as fs from 'fs';
+import { Cryptography } from '../Cryptography/Cryptography';
 
-export class MemoryStorage implements DataManager {
-    public cash: Map<number, string> = new Map();
+export class MemoryStorage implements DataStorage {
       
-    public async setData(data: string) {
-        const encrypter = new AESCipher();
-        return this.cash[0] = await encrypter.encrypt(data);
+    public async setData(data: string, file: string, encrypter: Cryptography) {
+        const text = await encrypter.encrypt(data);
+        fs.writeFile(file, text, (err) => err);
+        return text;
     }
 
-    public async getData() {
-        const decrypter = new AESCipher();
-        return await decrypter.decrypt(this.cash[0]);
+    public async getData(file: string, decrypter: Cryptography) {
+        const res = await fs.promises.readFile(file, 'utf-8');
+        const text = await decrypter.decrypt(res);
+        fs.writeFile(file, text, (err) => err);
+        return text;
     }
 }

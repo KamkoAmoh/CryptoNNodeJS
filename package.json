@@ -1,0 +1,20 @@
+{
+  "name": "cryptonnodejs",
+  "version": "1.0.0",
+  "description": "encrypting-test-cli",
+  "main": "expel.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KamkoAmoh/CryptoNNodeJS.git"
+  },
+  "author": "G.Constantine",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KamkoAmoh/CryptoNNodeJS/issues"
+  },
+  "homepage": "https://github.com/KamkoAmoh/CryptoNNodeJS#readme",
+  "dependencies": {}
+}

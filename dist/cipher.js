@@ -1,32 +1,139 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const cipherAES = require("./Cryptography/AESCipher");
+const cipherDES = require("./Cryptography/DESCipher");
 const MemoryStorage_1 = require("./MemoryStorage/MemoryStorage");
 const FileStorage_1 = require("./MemoryStorage/FileStorage");
-// const aesencrypt = new cipherAES.AESCipher().encrypt("Jora").then(res => console.log(res));
-// const aesdecrypt = new cipherAES.AESCipher().decrypt("0e13514f3671485dd180bc13e21f55773809d507e994c9220a4432a9fb3a4fd2dc3db74023441ef215b18eb6155f54b3c75ab9169ac83dbce9d2d1f1d4b026e39c1e5beba586396f0bd3d07de318608b").then(res => console.log(res));
-// const desencrypt = new cipherDES.DESCipher().encrypt("Jora");
-// const desdecrypt = new cipherDES.DESCipher().decrypt("ecb507cfe2c1da46");
-let memS = new MemoryStorage_1.MemoryStorage();
-async function memStorage() {
-    await memS.setData("Borea Juku");
-    await memS.setData("Core");
-    console.log(await memS.getData());
+const memoryStorage = new MemoryStorage_1.MemoryStorage();
+const fileStorage = new FileStorage_1.FileStorage();
+async function encryptInMemory(data, file = 'Memory.txt', cipher) {
+    return await memoryStorage.setData(data, file, cipher);
 }
-let fileWr = new FileStorage_1.FileStorage();
-async function writeRead() {
-    await fileWr.setData("Jemmie rettoretoo est demon est seption annot", "./Text.txt");
-    console.log(await fileWr.getData("./Text.txt"));
+async function decryptFromMemory(file = 'Memory.txt', cipher) {
+    return await memoryStorage.getData(file, cipher);
 }
-memStorage();
-writeRead();
-var myArgs = process.argv.slice(2);
-switch (myArgs[0]) {
+async function encryptFile(file, cipher) {
+    return await fileStorage.setData(undefined, file, cipher);
+}
+async function decryptFile(file, cipher) {
+    return await fileStorage.getData(file, cipher);
+}
+const helpOption = `
+Cryptography:
+    cipher <option> [option]: Encrypts/Decrypts with AES|DES.
+
+options:
+    -e <option> [argument]: Encrypts the data.
+    -d <option> [argument]: Decrypts the data.
+    -h [argument]: Help.
+
+arguments:
+    -aes <subArg> [data/file]: Encrypt [data/file] using AES.
+    -des <subArg> [data/file]: Encrypt [data/file] using DES.
+    -fm : Extract encrypted [data] from Memory:
+    -ff [file] : Decrypt an encrypted [file]
+subArg:
+    -m ["data"] : Store Encrypted ["data"] in Memory, data must be in "".
+    -f [file] : Encrypt an [file].
+
+`;
+let inputArgs = process.argv.slice(2);
+console.log(inputArgs[0], inputArgs[1], inputArgs[2], inputArgs[3], inputArgs[4]);
+switch (inputArgs[0]) {
     case '-e':
-        console.log(myArgs[1], 'smells quite badly.');
+        if (inputArgs[1]) {
+            let cipher;
+            switch (inputArgs[1]) {
+                case '-aes':
+                    cipher = new cipherAES.AESCipher();
+                    if (inputArgs[2]) {
+                        switch (inputArgs[2]) {
+                            case '-m':
+                                if (inputArgs[3]) {
+                                    encryptInMemory(inputArgs[3], undefined, cipher)
+                                        .catch(() => console.log(`Could not encrypt in memory: ${helpOption}`));
+                                    break;
+                                }
+                                else {
+                                    console.log(`Argument not provided: ${helpOption}`);
+                                }
+                                break;
+                            case '-f':
+                                if (inputArgs[3]) {
+                                    encryptFile(inputArgs[3], cipher)
+                                        .catch(() => console.log(`Could not find file or encrypt: ${helpOption}`));
+                                    break;
+                                }
+                                else {
+                                    console.log(`File path not provided: ${helpOption}`);
+                                }
+                                break;
+                            default: console.log(helpOption);
+                        }
+                    }
+                case '-des':
+                    cipher = new cipherDES.DESCipher();
+                    if (inputArgs[2]) {
+                        switch (inputArgs[2]) {
+                            case '-m':
+                                if (inputArgs[3]) {
+                                    encryptInMemory(inputArgs[3], undefined, cipher)
+                                        .catch(() => console.log(`Could not encrypt in memory: ${helpOption}`));
+                                    break;
+                                }
+                                else {
+                                    console.log(`Argument not provided: ${helpOption}`);
+                                }
+                                break;
+                            case '-f':
+                                if (inputArgs[3]) {
+                                    encryptFile(inputArgs[3], cipher)
+                                        .catch(() => console.log(`Could not find file or encrypt: ${helpOption}`));
+                                    break;
+                                }
+                                else {
+                                    console.log(`File path not provided: ${helpOption}`);
+                                }
+                                break;
+                            default: console.log(helpOption);
+                        }
+                    }
+                    break;
+            }
+        }
         break;
     case '-d':
-        console.log(myArgs[1], 'is really cool.');
+        if (inputArgs[1]) {
+            let cipher;
+            switch (inputArgs[1]) {
+                case '-fm':
+                    cipher = new cipherAES.AESCipher();
+                    decryptFromMemory(undefined, cipher)
+                        .catch(() => {
+                        cipher = new cipherDES.DESCipher();
+                        decryptFromMemory(undefined, cipher)
+                            .catch(() => console.log(`Could Not Decrypt from Memory: ${helpOption}`));
+                    });
+                    break;
+                case '-ff':
+                    if (inputArgs[2]) {
+                        cipher = new cipherAES.AESCipher();
+                        decryptFile(inputArgs[2], cipher)
+                            .catch(() => {
+                            cipher = new cipherDES.DESCipher();
+                            decryptFile(inputArgs[2], cipher)
+                                .catch(() => console.log(`Could not decrypt or find file Path: ${helpOption}`));
+                        });
+                        break;
+                    }
+                    else {
+                        console.log(`File Path not provided: ${helpOption}`);
+                    }
+                    break;
+                default: console.log(helpOption);
+            }
+        }
         break;
-    default: console.log("Something nor ptovided");
+    case '-h': console.log(helpOption);
 }
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY2lwaGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vY2lwaGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBRUEsaUVBQThEO0FBQzlELDZEQUEwRDtBQUUxRCw4RkFBOEY7QUFDOUYsMFBBQTBQO0FBQzFQLGdFQUFnRTtBQUNoRSw0RUFBNEU7QUFJNUUsSUFBSSxJQUFJLEdBQUcsSUFBSSw2QkFBYSxFQUFFLENBQUM7QUFHL0IsS0FBSyxVQUFVLFVBQVU7SUFDckIsTUFBTSxJQUFJLENBQUMsT0FBTyxDQUFDLFlBQVksQ0FBQyxDQUFDO0lBQ2pDLE1BQU0sSUFBSSxDQUFDLE9BQU8sQ0FBQyxNQUFNLENBQUMsQ0FBQztJQUMzQixPQUFPLENBQUMsR0FBRyxDQUFDLE1BQU0sSUFBSSxDQUFDLE9BQU8sRUFBRSxDQUFDLENBQUM7QUFDdEMsQ0FBQztBQUVELElBQUksTUFBTSxHQUFHLElBQUkseUJBQVcsRUFBRSxDQUFDO0FBRS9CLEtBQUssVUFBVSxTQUFTO0lBQ3BCLE1BQU0sTUFBTSxDQUFDLE9BQU8sQ0FBQywrQ0FBK0MsRUFBRSxZQUFZLENBQUMsQ0FBQztJQUNwRixPQUFPLENBQUMsR0FBRyxDQUFDLE1BQU0sTUFBTSxDQUFDLE9BQU8sQ0FBQyxZQUFZLENBQUMsQ0FBQyxDQUFDO0FBQ3BELENBQUM7QUFFRCxVQUFVLEVBQUUsQ0FBQztBQUNiLFNBQVMsRUFBRSxDQUFDO0FBRVosSUFBSSxNQUFNLEdBQUcsT0FBTyxDQUFDLElBQUksQ0FBQyxLQUFLLENBQUMsQ0FBQyxDQUFDLENBQUM7QUFFbkMsUUFBUSxNQUFNLENBQUMsQ0FBQyxDQUFDLEVBQUU7SUFDZixLQUFLLElBQUk7UUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLE1BQU0sQ0FBQyxDQUFDLENBQUMsRUFBRSxxQkFBcUIsQ0FBQyxDQUFDO1FBQUMsTUFBTTtJQUNoRSxLQUFLLElBQUk7UUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLE1BQU0sQ0FBQyxDQUFDLENBQUMsRUFBRSxpQkFBaUIsQ0FBQyxDQUFDO1FBQUMsTUFBTTtJQUM1RCxPQUFPLENBQUMsQ0FBQyxPQUFPLENBQUMsR0FBRyxDQUFDLHdCQUF3QixDQUFDLENBQUE7Q0FDakQifQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY2lwaGVyLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vY2lwaGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsc0RBQXNEO0FBQ3RELHNEQUFzRDtBQUN0RCxpRUFBOEQ7QUFDOUQsNkRBQTBEO0FBSTFELE1BQU0sYUFBYSxHQUFnQixJQUFJLDZCQUFhLEVBQUUsQ0FBQztBQUN2RCxNQUFNLFdBQVcsR0FBZ0IsSUFBSSx5QkFBVyxFQUFFLENBQUM7QUFFbkQsS0FBSyxVQUFVLGVBQWUsQ0FBQyxJQUFZLEVBQUUsT0FBZSxZQUFZLEVBQUUsTUFBb0I7SUFDMUYsT0FBTyxNQUFNLGFBQWEsQ0FBQyxPQUFPLENBQUMsSUFBSSxFQUFFLElBQUksRUFBRSxNQUFNLENBQUMsQ0FBQztBQUUzRCxDQUFDO0FBRUQsS0FBSyxVQUFVLGlCQUFpQixDQUFDLE9BQWUsWUFBWSxFQUFFLE1BQXFCO0lBQy9FLE9BQU8sTUFBTSxhQUFhLENBQUMsT0FBTyxDQUFDLElBQUksRUFBRSxNQUFNLENBQUMsQ0FBQztBQUNyRCxDQUFDO0FBRUQsS0FBSyxVQUFVLFdBQVcsQ0FBQyxJQUFZLEVBQUUsTUFBb0I7SUFDekQsT0FBTyxNQUFNLFdBQVcsQ0FBQyxPQUFPLENBQUMsU0FBUyxFQUFFLElBQUksRUFBRSxNQUFNLENBQUMsQ0FBQztBQUM5RCxDQUFDO0FBRUQsS0FBSyxVQUFVLFdBQVcsQ0FBQyxJQUFZLEVBQUUsTUFBb0I7SUFDekQsT0FBTyxNQUFNLFdBQVcsQ0FBQyxPQUFPLENBQUMsSUFBSSxFQUFFLE1BQU0sQ0FBQyxDQUFDO0FBQ25ELENBQUM7QUFFRCxNQUFNLFVBQVUsR0FBVzs7Ozs7Ozs7Ozs7Ozs7Ozs7O0NBa0IxQixDQUFBO0FBRUQsSUFBSSxTQUFTLEdBQUcsT0FBTyxDQUFDLElBQUksQ0FBQyxLQUFLLENBQUMsQ0FBQyxDQUFDLENBQUM7QUFDdEMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUUsU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFLFNBQVMsQ0FBQyxDQUFDLENBQUMsRUFBRSxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUUsU0FBUyxDQUFDLENBQUMsQ0FBQyxDQUFDLENBQUE7QUFDakYsUUFBUSxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUU7SUFDbEIsS0FBSyxJQUFJO1FBQ0wsSUFBSSxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUU7WUFDZCxJQUFJLE1BQU0sQ0FBQztZQUNYLFFBQVEsU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFO2dCQUNsQixLQUFLLE1BQU07b0JBQ1AsTUFBTSxHQUFHLElBQUksU0FBUyxDQUFDLFNBQVMsRUFBRSxDQUFDO29CQUNuQyxJQUFJLFNBQVMsQ0FBQyxDQUFDLENBQUMsRUFBRTt3QkFDZCxRQUFRLFNBQVMsQ0FBQyxDQUFDLENBQUMsRUFBRTs0QkFDbEIsS0FBSyxJQUFJO2dDQUNMLElBQUksU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFO29DQUNkLGVBQWUsQ0FBQyxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUUsU0FBUyxFQUFFLE1BQU0sQ0FBQzt5Q0FDM0MsS0FBSyxDQUFDLEdBQUcsRUFBRSxDQUFDLE9BQU8sQ0FBQyxHQUFHLENBQUMsZ0NBQWdDLFVBQVUsRUFBRSxDQUFDLENBQUMsQ0FBQztvQ0FDNUUsTUFBTTtpQ0FDVDtxQ0FBTTtvQ0FDSCxPQUFPLENBQUMsR0FBRyxDQUFDLDBCQUEwQixVQUFVLEVBQUUsQ0FBQyxDQUFDO2lDQUN2RDtnQ0FDRCxNQUFNOzRCQUNWLEtBQUssSUFBSTtnQ0FDTCxJQUFJLFNBQVMsQ0FBQyxDQUFDLENBQUMsRUFBRTtvQ0FDZCxXQUFXLENBQUMsU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFLE1BQU0sQ0FBQzt5Q0FDNUIsS0FBSyxDQUFDLEdBQUcsRUFBRSxDQUFDLE9BQU8sQ0FBQyxHQUFHLENBQUMsbUNBQW1DLFVBQVUsRUFBRSxDQUFDLENBQUMsQ0FBQztvQ0FDL0UsTUFBTTtpQ0FDVDtxQ0FBTTtvQ0FDSCxPQUFPLENBQUMsR0FBRyxDQUFDLDJCQUEyQixVQUFVLEVBQUUsQ0FBQyxDQUFDO2lDQUN4RDtnQ0FDTCxNQUFNOzRCQUNOLE9BQU8sQ0FBQyxDQUFDLE9BQU8sQ0FBQyxHQUFHLENBQUMsVUFBVSxDQUFDLENBQUM7eUJBQ3BDO3FCQUNKO2dCQUVMLEtBQUssTUFBTTtvQkFDUCxNQUFNLEdBQUcsSUFBSSxTQUFTLENBQUMsU0FBUyxFQUFFLENBQUM7b0JBQ25DLElBQUksU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFO3dCQUNkLFFBQVEsU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFOzRCQUNsQixLQUFLLElBQUk7Z0NBQ0wsSUFBSSxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUU7b0NBQ2QsZUFBZSxDQUFDLFNBQVMsQ0FBQyxDQUFDLENBQUMsRUFBRSxTQUFTLEVBQUUsTUFBTSxDQUFDO3lDQUMzQyxLQUFLLENBQUMsR0FBRyxFQUFFLENBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxnQ0FBZ0MsVUFBVSxFQUFFLENBQUMsQ0FBQyxDQUFDO29DQUM1RSxNQUFNO2lDQUNUO3FDQUFNO29DQUNILE9BQU8sQ0FBQyxHQUFHLENBQUMsMEJBQTBCLFVBQVUsRUFBRSxDQUFDLENBQUM7aUNBQ3ZEO2dDQUNMLE1BQU07NEJBQ04sS0FBSyxJQUFJO2dDQUNMLElBQUksU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFO29DQUNkLFdBQVcsQ0FBQyxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUUsTUFBTSxDQUFDO3lDQUM1QixLQUFLLENBQUMsR0FBRyxFQUFFLENBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxtQ0FBbUMsVUFBVSxFQUFFLENBQUMsQ0FBQyxDQUFDO29DQUMvRSxNQUFNO2lDQUNUO3FDQUFNO29DQUNILE9BQU8sQ0FBQyxHQUFHLENBQUMsMkJBQTJCLFVBQVUsRUFBRSxDQUFDLENBQUM7aUNBQ3hEO2dDQUNMLE1BQU07NEJBQ04sT0FBTyxDQUFDLENBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxVQUFVLENBQUMsQ0FBQzt5QkFDcEM7cUJBQ0o7b0JBQ0QsTUFBTTthQUNiO1NBQ0o7UUFDTCxNQUFNO0lBQ04sS0FBSyxJQUFJO1FBQ0wsSUFBRyxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUU7WUFDYixJQUFJLE1BQU0sQ0FBQztZQUNYLFFBQVEsU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFO2dCQUNsQixLQUFLLEtBQUs7b0JBQ04sTUFBTSxHQUFHLElBQUksU0FBUyxDQUFDLFNBQVMsRUFBRSxDQUFDO29CQUNuQyxpQkFBaUIsQ0FBQyxTQUFTLEVBQUUsTUFBTSxDQUFDO3lCQUMvQixLQUFLLENBQUMsR0FBRyxFQUFFO3dCQUNSLE1BQU0sR0FBRyxJQUFJLFNBQVMsQ0FBQyxTQUFTLEVBQUUsQ0FBQzt3QkFDbkMsaUJBQWlCLENBQUMsU0FBUyxFQUFFLE1BQU0sQ0FBQzs2QkFDL0IsS0FBSyxDQUFDLEdBQUcsRUFBRSxDQUFDLE9BQU8sQ0FBQyxHQUFHLENBQUMsa0NBQWtDLFVBQVUsRUFBRSxDQUFDLENBQUMsQ0FBQztvQkFDbEYsQ0FBQyxDQUFDLENBQUM7b0JBQ1gsTUFBTTtnQkFDTixLQUFLLEtBQUs7b0JBQ04sSUFBSSxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUU7d0JBQ2QsTUFBTSxHQUFHLElBQUksU0FBUyxDQUFDLFNBQVMsRUFBRSxDQUFDO3dCQUNuQyxXQUFXLENBQUMsU0FBUyxDQUFDLENBQUMsQ0FBQyxFQUFFLE1BQU0sQ0FBQzs2QkFDNUIsS0FBSyxDQUFDLEdBQUcsRUFBRTs0QkFDUixNQUFNLEdBQUcsSUFBSSxTQUFTLENBQUMsU0FBUyxFQUFFLENBQUM7NEJBQ25DLFdBQVcsQ0FBQyxTQUFTLENBQUMsQ0FBQyxDQUFDLEVBQUUsTUFBTSxDQUFDO2lDQUM1QixLQUFLLENBQUMsR0FBRyxFQUFFLENBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyx3Q0FBd0MsVUFBVSxFQUFFLENBQUMsQ0FBQyxDQUFDO3dCQUN4RixDQUFDLENBQUMsQ0FBQzt3QkFDUCxNQUFNO3FCQUNUO3lCQUFNO3dCQUNILE9BQU8sQ0FBQyxHQUFHLENBQUMsMkJBQTJCLFVBQVUsRUFBRSxDQUFDLENBQUM7cUJBQ3hEO29CQUNMLE1BQU07Z0JBQ04sT0FBTyxDQUFDLENBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxVQUFVLENBQUMsQ0FBQzthQUNwQztTQUNKO1FBQ0wsTUFBTTtJQUNOLEtBQUssSUFBSSxDQUFDLENBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxVQUFVLENBQUMsQ0FBQztDQUN0QyJ9
